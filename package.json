@@ -11,12 +11,15 @@
   "author": "fultonth@gmail.com",
   "license": "ISC",
   "dependencies": {
-    "express": "4.16.4"
+    "config": "3.0.1",
+    "express": "4.16.4",
+    "morgan": "1.9.1"
   },
   "devDependencies": {
     "chai": "4.2.0",
     "chai-http": "4.2.1",
     "eslint": "5.12.0",
+    "eslint-config-prettier": "3.3.0",
     "eslint-plugin-prettier": "3.0.1",
     "mocha": "5.2.0",
     "prettier": "1.15.3"

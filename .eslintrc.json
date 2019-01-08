@@ -2,9 +2,8 @@
   "parserOptions": {
     "ecmaVersion": 9
   },
-  "plugins": ["prettier"],
+  "extends": ["prettier"],
   "rules": {
-    "prettier/prettier": "error",
     "comma-dangle": ["error", "always-multiline"]
   }
 }
