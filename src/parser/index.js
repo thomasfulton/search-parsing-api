@@ -19,9 +19,6 @@ const tokenPrecedence = [
 ];
 
 function is(token, types) {
-  // if (!token) {
-  //   return false;
-  // }
   return types.includes(token.type);
 }
 
@@ -33,6 +30,8 @@ function isOperator(token) {
   return is(token, ["AND", "OR"]);
 }
 
+// Returns 1 if op1 has greater precedence than op2, -1 if op1 has lesser
+// precedence, and 0 if they have the same precedence.
 function precedence(op1, op2) {
   if (op1.type === "OR" && op2.type === "AND") {
     return 1;
@@ -43,7 +42,7 @@ function precedence(op1, op2) {
   }
 }
 
-// This uses the shunting-yard algorithm to build an AST.
+// This uses a modified shunting-yard algorithm to build an AST.
 // https://en.wikipedia.org/wiki/Shunting-yard_algorithm
 function parse(input) {
   let operatorStack = [];
@@ -59,10 +58,7 @@ function parse(input) {
     }
 
     if (isOperator(token)) {
-      while (
-        operatorStack[0] &&
-        precedence(token, operatorStack[0] > 0)
-      ) {
+      while (operatorStack[0] && precedence(token, operatorStack[0] > 0)) {
         outputStack.push(
           Object.assign(
             { children: [outputStack.pop(), outputStack.pop()] },
