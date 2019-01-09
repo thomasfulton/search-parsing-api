@@ -30,6 +30,14 @@ function isOperator(token) {
   return is(token, ["AND", "OR"]);
 }
 
+function isOpenParen(token) {
+  return is(token, ["("]);
+}
+
+function isCloseParen(token) {
+  return is(token, [")"]);
+}
+
 // Returns 1 if op1 has greater precedence than op2, -1 if op1 has lesser
 // precedence, and 0 if they have the same precedence.
 function precedence(op1, op2) {
@@ -69,6 +77,27 @@ function parse(input) {
       }
 
       operatorStack.push(token);
+    }
+
+    if (isOpenParen(token)) {
+      operatorStack.push(token);
+    }
+
+    if (isCloseParen(token)) {
+      while (operatorStack[0] && !isOpenParen(operatorStack[0])) {
+        outputStack.push(
+          Object.assign(
+            { children: [outputStack.pop(), outputStack.pop()] },
+            token
+          )
+        );
+        operatorStack.pop();
+      }
+      if (isOpenParen(operatorStack[0])) {
+        operatorStack.pop();
+      } else {
+        throw new Error("BRACKET_MISMATCH");
+      }
     }
 
     console.log("operator stack:", JSON.stringify(operatorStack));
