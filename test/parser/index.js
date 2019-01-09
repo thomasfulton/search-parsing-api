@@ -87,7 +87,7 @@ describe("parser", () => {
         ],
       });
     });
-    xit("parses brackets correctly", () => {
+    it("parses brackets correctly", () => {
       expect(
         parse([
           { type: "STRING", value: "test1" },
@@ -112,7 +112,7 @@ describe("parser", () => {
         ],
       });
     });
-    xit("parses nested operators inside brackets correctly", () => {
+    it("parses nested operators inside brackets correctly", () => {
       expect(
         parse([
           { type: "STRING", value: "test1" },
