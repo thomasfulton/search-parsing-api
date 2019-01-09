@@ -1,5 +1,5 @@
 const tokenPrecedence = [
-  { type: "OPEN_PAREN" },
+  { OPEN_PAREN: "OPEN_PAREN" },
   { type: "CLOSE_PAREN" },
   { type: "NOT" },
   { type: "GE" },
@@ -18,6 +18,13 @@ const tokenPrecedence = [
   { type: "STRING" },
 ];
 
+const OPERATOR_PRECEDENCE = {
+  OPEN_PAREN: 0,
+  CLOSE_PAREN: 0,
+  AND: 500,
+  OR: 400,
+};
+
 function isType(token, types) {
   return types.includes(token.type);
 }
@@ -31,30 +38,38 @@ function isOperator(token) {
 }
 
 function isOpenParen(token) {
-  return isType(token, ["("]);
+  return isType(token, ["OPEN_PAREN"]);
 }
 
 function isCloseParen(token) {
-  return isType(token, [")"]);
+  return isType(token, ["CLOSE_PAREN"]);
 }
 
 // Returns 1 if op1 has greater precedence than op2, -1 if op1 has lesser
 // precedence, and 0 if they have the same precedence.
 function precedence(op1, op2) {
-  if (op1.type === "OR" && op2.type === "AND") {
-    return -1;
-  } else if (op1.type === "AND" && op2.type === "OR") {
+  if (OPERATOR_PRECEDENCE[op1.type] > OPERATOR_PRECEDENCE[op2.type]) {
     return 1;
+  } else if (OPERATOR_PRECEDENCE[op1.type] < OPERATOR_PRECEDENCE[op2.type]) {
+    return -1;
   } else {
     return 0;
   }
 }
 
-function pushTopOperatorToOutputStack(operatorStack, outputStack) {
+function createNode(operatorStack, outputStack) {
   const o2 = outputStack.pop();
   const o1 = outputStack.pop();
-  outputStack.push(Object.assign({ children: [o1, o2] }, operatorStack.pop()));
+  const operator = operatorStack.pop();
+  if (isOpenParen(operator)) {
+    throw new Error("BRACKET_MISMATCH");
+  }
+  outputStack.push(Object.assign({ children: [o1, o2] }, operator));
 }
+
+function peek(array) {
+  return array[array.length - 1];
+};
 
 // This uses a modified shunting-yard algorithm to build an AST.
 // https://en.wikipedia.org/wiki/Shunting-yard_algorithm
@@ -73,10 +88,10 @@ function parse(input) {
 
     if (isOperator(token)) {
       while (
-        operatorStack.length > 0 &&
-        precedence(operatorStack[0], token) >= 0
+        peek(operatorStack) &&
+        precedence(peek(operatorStack), token) >= 0
       ) {
-        pushTopOperatorToOutputStack(operatorStack, outputStack);
+        createNode(operatorStack, outputStack);
       }
 
       operatorStack.push(token);
@@ -87,10 +102,10 @@ function parse(input) {
     }
 
     if (isCloseParen(token)) {
-      while (operatorStack.length > 0 && !isOpenParen(operatorStack[0])) {
-        pushTopOperatorToOutputStack(operatorStack, outputStack);
+      while (peek(operatorStack) && !isOpenParen(peek(operatorStack))) {
+        createNode(operatorStack, outputStack);
       }
-      if (isOpenParen(operatorStack[0])) {
+      if (isOpenParen(peek(operatorStack))) {
         operatorStack.pop();
       } else {
         throw new Error("BRACKET_MISMATCH");
@@ -106,7 +121,7 @@ function parse(input) {
   console.log("-----------------");
 
   while (operatorStack.length > 0) {
-    pushTopOperatorToOutputStack(operatorStack, outputStack);
+    createNode(operatorStack, outputStack);
 
     console.log("operator stack:", JSON.stringify(operatorStack, null, 2));
     console.log("outputStack:", JSON.stringify(outputStack, null, 2));

@@ -87,9 +87,6 @@ describe("parser", () => {
         ],
       });
     });
-
-    // test1 AND (test2 OR test3)
-
     xit("parses brackets correctly", () => {
       expect(
         parse([
@@ -104,12 +101,12 @@ describe("parser", () => {
       ).to.deep.equal({
         type: "AND",
         children: [
-          { type: "STRING", value: "test" },
+          { type: "STRING", value: "test1" },
           {
             type: "OR",
             children: [
-              { type: "STRING", value: "test" },
-              { type: "STRING", value: "test" },
+              { type: "STRING", value: "test2" },
+              { type: "STRING", value: "test3" },
             ],
           },
         ],
@@ -131,16 +128,16 @@ describe("parser", () => {
       ).to.deep.equal({
         type: "AND",
         children: [
-          { type: "STRING", value: "test" },
+          { type: "STRING", value: "test1" },
           {
             type: "OR",
             children: [
-              { type: "STRING", value: "test" },
+              { type: "STRING", value: "test2" },
               {
                 type: "AND",
                 children: [
-                  { type: "STRING", value: "test" },
-                  { type: "STRING", value: "test" },
+                  { type: "STRING", value: "test3" },
+                  { type: "STRING", value: "test4" },
                 ],
               },
             ],
