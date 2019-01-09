@@ -9,17 +9,30 @@ function isTerminating(char) {
 }
 
 /**
- * Reads and tokenizes the next string until a terminating character.
+ * Reads and tokenizes the next literal until a terminating character.
  *
  * @param {*} input
- * @returns The next string
  */
-function nextString(input) {
+function nextLiteral(input) {
   let pos = 0;
   let value = "";
   while (!isTerminating(input.charAt(pos))) {
     value += input.charAt(pos);
     pos++;
+  }
+  if (value === "true") {
+    return [{ type: "BOOLEAN", value: true }, pos];
+  }
+  if (value === "false") {
+    return [{ type: "BOOLEAN", value: false }, pos];
+  }
+  if (!isNaN(value)) {
+    const number = Number(value);
+    if (Number.isInteger(number)) {
+      return [{ type: "INT", value: number }, pos];
+    } else {
+      return [{ type: "FLOAT", value: number }, pos];
+    }
   }
   return [{ type: "STRING", value }, pos];
 }
@@ -39,6 +52,30 @@ function nextToken(input) {
     return [{ type: "CLOSE_PAREN" }, 1];
   }
 
+  if (input.charAt(0) === "!") {
+    return [{ type: "NOT" }, 1];
+  }
+
+  if (input.substring(0, 2) === ">=") {
+    return [{ type: "GE" }, 2];
+  }
+
+  if (input.substring(0, 2) === "<=") {
+    return [{ type: "LE" }, 2];
+  }
+
+  if (input.charAt(0) === "=") {
+    return [{ type: "EQ" }, 1];
+  }
+
+  if (input.charAt(0) === ">") {
+    return [{ type: "GT" }, 1];
+  }
+
+  if (input.charAt(0) === "<") {
+    return [{ type: "LT" }, 1];
+  }
+
   if (input.substring(0, 5) === " AND ") {
     return [{ type: "AND" }, 5];
   }
@@ -47,11 +84,19 @@ function nextToken(input) {
     return [{ type: "OR" }, 4];
   }
 
+  if (input.substring(0, 3) === "len") {
+    return [{ type: "LEN" }, 3];
+  }
+
+  if (input.charAt(0) === `"`) {
+    return [{ type: "QUOTE" }, 1];
+  }
+
   if (input.charAt(0) === " ") {
     return [{ type: "AND" }, 1];
   }
 
-  return nextString(input);
+  return nextLiteral(input);
 }
 
 /**
@@ -68,4 +113,4 @@ function lex(input) {
   return [next[0]].concat(lex(input.substring(next[1])));
 }
 
-module.exports = { lex, nextToken, nextString, isTerminating };
+module.exports = { lex, nextToken, nextLiteral, isTerminating };

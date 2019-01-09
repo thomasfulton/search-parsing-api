@@ -2,7 +2,7 @@ const { expect } = require("chai");
 const {
   lex,
   nextToken,
-  nextString,
+  nextLiteral,
   isTerminating,
 } = require("../../src/lexer");
 
@@ -15,21 +15,21 @@ describe("isTerminating", () => {
   });
 });
 
-describe("nextString", () => {
-  it("returns the next string", () => {
-    expect(nextString("test")).to.deep.equal([
+describe("nextLiteral", () => {
+  it("returns the next literal", () => {
+    expect(nextLiteral("test")).to.deep.equal([
       { type: "STRING", value: "test" },
       4,
     ]);
-    expect(nextString("test1 test2")).to.deep.equal([
+    expect(nextLiteral("test1 test2")).to.deep.equal([
       { type: "STRING", value: "test1" },
       5,
     ]);
-    expect(nextString("test1) test2")).to.deep.equal([
+    expect(nextLiteral("test1) test2")).to.deep.equal([
       { type: "STRING", value: "test1" },
       5,
     ]);
-    expect(nextString(`test1" test2`)).to.deep.equal([
+    expect(nextLiteral(`test1" test2`)).to.deep.equal([
       { type: "STRING", value: "test1" },
       5,
     ]);
@@ -46,6 +46,19 @@ describe("nextToken", () => {
     expect(nextToken(")")).to.deep.equal([{ type: "CLOSE_PAREN" }, 1]);
     expect(nextToken(" AND test")).to.deep.equal([{ type: "AND" }, 5]);
     expect(nextToken(" OR test")).to.deep.equal([{ type: "OR" }, 4]);
+    expect(nextToken(`"test`)).to.deep.equal([{ type: "QUOTE" }, 1]);
+    expect(nextToken("35")).to.deep.equal([{ type: "INT", value: 35 }, 2]);
+    expect(nextToken("4.63")).to.deep.equal([
+      { type: "FLOAT", value: 4.63 },
+      4,
+    ]);
+    expect(nextToken(">=")).to.deep.equal([{ type: "GE" }, 2]);
+    expect(nextToken("<=")).to.deep.equal([{ type: "LE" }, 2]);
+    expect(nextToken(">")).to.deep.equal([{ type: "GT" }, 1]);
+    expect(nextToken("<")).to.deep.equal([{ type: "LT" }, 1]);
+    expect(nextToken("=")).to.deep.equal([{ type: "EQ" }, 1]);
+    expect(nextToken("!false")).to.deep.equal([{ type: "NOT" }, 1]);
+    expect(nextToken("len(5)")).to.deep.equal([{ type: "LEN" }, 3]);
   });
 });
 
@@ -90,6 +103,51 @@ describe("lex", () => {
       { type: "CLOSE_PAREN" },
       { type: "AND" },
       { type: "STRING", value: "test" },
+    ]);
+  });
+
+  it("lexes quote", () => {
+    expect(lex(`"test"`)).to.deep.equal([
+      { type: "QUOTE" },
+      { type: "STRING", value: "test" },
+      { type: "QUOTE" },
+    ]);
+  });
+
+  it("lexes boolean", () => {
+    expect(lex("false")).to.deep.equal([{ type: "BOOLEAN", value: false }]);
+    expect(lex("true")).to.deep.equal([{ type: "BOOLEAN", value: true }]);
+  });
+
+  it("lexes float", () => {
+    expect(lex("3.5")).to.deep.equal([{ type: "FLOAT", value: 3.5 }]);
+  });
+
+  it("lexes int", () => {
+    expect(lex("35")).to.deep.equal([{ type: "INT", value: 35 }]);
+  });
+
+  it("lexes operators", () => {
+    expect(lex("=")).to.deep.equal([{ type: "EQ" }]);
+    expect(lex(">")).to.deep.equal([{ type: "GT" }]);
+    expect(lex("<")).to.deep.equal([{ type: "LT" }]);
+    expect(lex(">=")).to.deep.equal([{ type: "GE" }]);
+    expect(lex("<=")).to.deep.equal([{ type: "LE" }]);
+  });
+
+  it("lexes not", () => {
+    expect(lex("!false")).to.deep.equal([
+      { type: "NOT" },
+      { type: "BOOLEAN", value: false },
+    ]);
+  });
+
+  it("lexes length", () => {
+    expect(lex("len(5)")).to.deep.equal([
+      { type: "LEN" },
+      { type: "OPEN_PAREN" },
+      { type: "INT", value: 5 },
+      { type: "CLOSE_PAREN" },
     ]);
   });
 });
