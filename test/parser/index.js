@@ -3,7 +3,7 @@ const { parse } = require("../../src/parser");
 
 describe("parser", () => {
   describe("parse()", () => {
-    it.only("parses brackets and operators correctly", () => {
+    it("parses and correctly", () => {
       expect(
         parse([
           { type: "STRING", value: "test" },
@@ -17,7 +17,8 @@ describe("parser", () => {
           { type: "STRING", value: "test" },
         ],
       });
-
+    });
+    it("parses and/or in the right order", () => {
       expect(
         parse([
           { type: "STRING", value: "test" },
@@ -29,6 +30,7 @@ describe("parser", () => {
       ).to.deep.equal({
         type: "OR",
         children: [
+          { type: "STRING", value: "test" },
           {
             type: "AND",
             children: [
@@ -36,10 +38,10 @@ describe("parser", () => {
               { type: "STRING", value: "test" },
             ],
           },
-          { type: "STRING", value: "test" },
         ],
       });
-
+    });
+    it("parses multiple ands correctly", () => {
       expect(
         parse([
           { type: "STRING", value: "test" },
@@ -61,6 +63,8 @@ describe("parser", () => {
           { type: "STRING", value: "test" },
         ],
       });
+    });
+    it("parses multiple ors correctly", () => {
       expect(
         parse([
           { type: "STRING", value: "test" },
@@ -82,6 +86,8 @@ describe("parser", () => {
           { type: "STRING", value: "test" },
         ],
       });
+    });
+    xit("parses brackets correctly", () => {
       expect(
         parse([
           { type: "STRING", value: "test" },
@@ -101,6 +107,39 @@ describe("parser", () => {
             children: [
               { type: "STRING", value: "test" },
               { type: "STRING", value: "test" },
+            ],
+          },
+        ],
+      });
+    });
+    xit("parses nested operators inside brackets correctly", () => {
+      expect(
+        parse([
+          { type: "STRING", value: "test" },
+          { type: "AND" },
+          { type: "OPEN_PAREN" },
+          { type: "STRING", value: "test" },
+          { type: "OR" },
+          { type: "STRING", value: "test" },
+          { type: "AND" },
+          { type: "STRING", value: "test" },
+          { type: "CLOSE_PAREN" },
+        ])
+      ).to.deep.equal({
+        type: "AND",
+        children: [
+          { type: "STRING", value: "test" },
+          {
+            type: "OR",
+            children: [
+              { type: "STRING", value: "test" },
+              {
+                type: "AND",
+                children: [
+                  { type: "STRING", value: "test" },
+                  { type: "STRING", value: "test" },
+                ],
+              },
             ],
           },
         ],

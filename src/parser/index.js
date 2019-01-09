@@ -18,36 +18,45 @@ const tokenPrecedence = [
   { type: "STRING" },
 ];
 
-function is(token, types) {
+function isType(token, types) {
   return types.includes(token.type);
 }
 
 function isLiteral(token) {
-  return is(token, ["STRING", "INT", "FLOAT"]);
+  return isType(token, ["STRING", "INT", "FLOAT"]);
 }
 
 function isOperator(token) {
-  return is(token, ["AND", "OR"]);
+  return isType(token, ["AND", "OR"]);
 }
 
 function isOpenParen(token) {
-  return is(token, ["("]);
+  return isType(token, ["("]);
 }
 
 function isCloseParen(token) {
-  return is(token, [")"]);
+  return isType(token, [")"]);
 }
 
 // Returns 1 if op1 has greater precedence than op2, -1 if op1 has lesser
 // precedence, and 0 if they have the same precedence.
 function precedence(op1, op2) {
   if (op1.type === "OR" && op2.type === "AND") {
-    return 1;
-  } else if (op1.type === "AND" && op2.type === "OR") {
     return -1;
+  } else if (op1.type === "AND" && op2.type === "OR") {
+    return 1;
   } else {
     return 0;
   }
+}
+
+function pushOperatorToOutputStack(operator, outputStack) {
+  outputStack.push(
+    Object.assign(
+      { children: [outputStack.pop(), outputStack.pop()] },
+      operator
+    )
+  );
 }
 
 // This uses a modified shunting-yard algorithm to build an AST.
@@ -57,47 +66,42 @@ function parse(input) {
   let outputStack = [];
 
   while (input.length !== 0) {
-    const token = input.pop();
+    const token = input.shift();
 
     console.log("token:", JSON.stringify(token));
 
     if (isLiteral(token)) {
       outputStack.push(token);
+      continue;
     }
 
     if (isOperator(token)) {
-      while (operatorStack[0] && precedence(token, operatorStack[0] > 0)) {
-        outputStack.push(
-          Object.assign(
-            { children: [outputStack.pop(), outputStack.pop()] },
-            token
-          )
-        );
-        operatorStack.pop();
+      while (
+        operatorStack.length > 0 &&
+        precedence(token, operatorStack[0]) < 0
+      ) {
+        pushOperatorToOutputStack(operatorStack.pop(), outputStack);
       }
 
       operatorStack.push(token);
+      continue;
     }
 
     if (isOpenParen(token)) {
       operatorStack.push(token);
+      continue;
     }
 
     if (isCloseParen(token)) {
-      while (operatorStack[0] && !isOpenParen(operatorStack[0])) {
-        outputStack.push(
-          Object.assign(
-            { children: [outputStack.pop(), outputStack.pop()] },
-            token
-          )
-        );
-        operatorStack.pop();
+      while (operatorStack.length > 0 && !isOpenParen(operatorStack[0])) {
+        pushOperatorToOutputStack(operatorStack.pop(), outputStack);
       }
       if (isOpenParen(operatorStack[0])) {
         operatorStack.pop();
       } else {
         throw new Error("BRACKET_MISMATCH");
       }
+      continue;
     }
 
     console.log("operator stack:", JSON.stringify(operatorStack));
@@ -105,14 +109,9 @@ function parse(input) {
     console.log("-----------------");
   }
 
-  while (operatorStack.length !== 0) {
-    const operator = operatorStack.pop();
-    outputStack.push(
-      Object.assign(
-        { children: [outputStack.pop(), outputStack.pop()] },
-        operator
-      )
-    );
+  while (operatorStack.length > 0) {
+    pushOperatorToOutputStack(operatorStack.pop(), outputStack);
+
     console.log("operator stack:", JSON.stringify(operatorStack));
     console.log("outputStack:", JSON.stringify(outputStack));
     console.log("-----------------");
