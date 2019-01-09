@@ -50,13 +50,10 @@ function precedence(op1, op2) {
   }
 }
 
-function pushOperatorToOutputStack(operator, outputStack) {
-  outputStack.push(
-    Object.assign(
-      { children: [outputStack.pop(), outputStack.pop()] },
-      operator
-    )
-  );
+function pushTopOperatorToOutputStack(operatorStack, outputStack) {
+  const o2 = outputStack.pop();
+  const o1 = outputStack.pop();
+  outputStack.push(Object.assign({ children: [o1, o2] }, operatorStack.pop()));
 }
 
 // This uses a modified shunting-yard algorithm to build an AST.
@@ -68,52 +65,51 @@ function parse(input) {
   while (input.length !== 0) {
     const token = input.shift();
 
-    console.log("token:", JSON.stringify(token));
+    console.log("token:", JSON.stringify(token, null, 2));
 
     if (isLiteral(token)) {
       outputStack.push(token);
-      continue;
     }
 
     if (isOperator(token)) {
       while (
         operatorStack.length > 0 &&
-        precedence(token, operatorStack[0]) < 0
+        precedence(operatorStack[0], token) >= 0
       ) {
-        pushOperatorToOutputStack(operatorStack.pop(), outputStack);
+        pushTopOperatorToOutputStack(operatorStack, outputStack);
       }
 
       operatorStack.push(token);
-      continue;
     }
 
     if (isOpenParen(token)) {
       operatorStack.push(token);
-      continue;
     }
 
     if (isCloseParen(token)) {
       while (operatorStack.length > 0 && !isOpenParen(operatorStack[0])) {
-        pushOperatorToOutputStack(operatorStack.pop(), outputStack);
+        pushTopOperatorToOutputStack(operatorStack, outputStack);
       }
       if (isOpenParen(operatorStack[0])) {
         operatorStack.pop();
       } else {
         throw new Error("BRACKET_MISMATCH");
       }
-      continue;
     }
 
-    console.log("operator stack:", JSON.stringify(operatorStack));
-    console.log("output stack:", JSON.stringify(outputStack));
+    console.log("operator stack:", JSON.stringify(operatorStack, null, 2));
+    console.log("output stack:", JSON.stringify(outputStack, null, 2));
     console.log("-----------------");
   }
 
-  while (operatorStack.length > 0) {
-    pushOperatorToOutputStack(operatorStack.pop(), outputStack);
+  console.log("*** INPUT EMPTY *** ");
+  console.log("-----------------");
 
-    console.log("operator stack:", JSON.stringify(operatorStack));
-    console.log("outputStack:", JSON.stringify(outputStack));
+  while (operatorStack.length > 0) {
+    pushTopOperatorToOutputStack(operatorStack, outputStack);
+
+    console.log("operator stack:", JSON.stringify(operatorStack, null, 2));
+    console.log("outputStack:", JSON.stringify(outputStack, null, 2));
     console.log("-----------------");
   }
 
@@ -125,7 +121,7 @@ function parse(input) {
     throw new Error("INVALID_EXPRESSION");
   }
 
-  return outputStack[0];
+  return outputStack.pop();
 }
 
 module.exports = {
