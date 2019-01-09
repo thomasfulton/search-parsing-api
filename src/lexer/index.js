@@ -20,6 +20,7 @@ function nextLiteral(input) {
     value += input.charAt(pos);
     pos++;
   }
+
   if (value === "true") {
     return [{ type: "BOOLEAN", value: true }, pos];
   }
