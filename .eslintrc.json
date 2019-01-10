@@ -4,6 +4,7 @@
   },
   "extends": ["prettier"],
   "rules": {
-    "comma-dangle": ["error", "always-multiline"]
+    "comma-dangle": ["error", "always-multiline"],
+    "eqeqeq": ["error", "always"]
   }
 }

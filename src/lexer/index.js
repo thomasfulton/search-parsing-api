@@ -39,6 +39,26 @@ function nextLiteral(input) {
 }
 
 /**
+ * Reads and tokenizes the next literal until an end quote.
+ *
+ * @param {*} input
+ */
+
+function nextQuotedString(input) {
+  let pos = 1;
+  let value = "";
+  while (input.charAt(pos) !== `"`) {
+    value += input.charAt(pos);
+    pos++;
+
+    if (pos >= input.length) {
+      throw new Error("MISMATCHED_QUOTES");
+    }
+  }
+  return [{ type: "QUOTED", value }, pos + 1];
+}
+
+/**
  * Returns the next token from an input string.
  *
  * @param {*} input
@@ -90,7 +110,7 @@ function nextToken(input) {
   }
 
   if (input.charAt(0) === `"`) {
-    return [{ type: "QUOTE" }, 1];
+    return nextQuotedString(input);
   }
 
   if (input.charAt(0) === " ") {
@@ -114,4 +134,10 @@ function lex(input) {
   return [next[0]].concat(lex(input.substring(next[1])));
 }
 
-module.exports = { lex, nextToken, nextLiteral, isTerminating };
+module.exports = {
+  lex,
+  nextToken,
+  nextLiteral,
+  nextQuotedString,
+  isTerminating,
+};

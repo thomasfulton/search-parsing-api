@@ -3,6 +3,7 @@ const {
   lex,
   nextToken,
   nextLiteral,
+  nextQuotedString,
   isTerminating,
 } = require("../../src/lexer");
 
@@ -37,6 +38,20 @@ describe("lexer", () => {
     });
   });
 
+  describe("nextQuotedString()", () => {
+    it("returns the next quoted string", () => {
+      expect(nextQuotedString(`"test1" AND test2`)).to.deep.equal([
+        { type: "QUOTED", value: "test1" },
+        7,
+      ]);
+    });
+    it("fails on mismatched quote", () => {
+      expect(() => nextQuotedString(`"test1 AND test2`)).to.throw(
+        "MISMATCHED_QUOTES"
+      );
+    });
+  });
+
   describe("nextToken()", () => {
     it("returns the next token", () => {
       expect(nextToken("test test")).to.deep.equal([
@@ -50,7 +65,10 @@ describe("lexer", () => {
       expect(nextToken(")")).to.deep.equal([{ type: "CLOSE_PAREN" }, 1]);
       expect(nextToken(" AND test")).to.deep.equal([{ type: "AND" }, 5]);
       expect(nextToken(" OR test")).to.deep.equal([{ type: "OR" }, 4]);
-      expect(nextToken(`"test`)).to.deep.equal([{ type: "QUOTE" }, 1]);
+      expect(nextToken(`"test"`)).to.deep.equal([
+        { type: "QUOTED", value: "test" },
+        6,
+      ]);
       expect(nextToken("35")).to.deep.equal([{ type: "INT", value: 35 }, 2]);
       expect(nextToken("4.63")).to.deep.equal([
         { type: "FLOAT", value: 4.63 },
@@ -110,12 +128,8 @@ describe("lexer", () => {
       ]);
     });
 
-    it("lexes quote", () => {
-      expect(lex(`"test"`)).to.deep.equal([
-        { type: "QUOTE" },
-        { type: "STRING", value: "test" },
-        { type: "QUOTE" },
-      ]);
+    it("lexes quoted string", () => {
+      expect(lex(`"test"`)).to.deep.equal([{ type: "QUOTED", value: "test" }]);
     });
 
     it("lexes boolean", () => {
