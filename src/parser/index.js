@@ -1,22 +1,15 @@
-const tokenPrecedence = [
-  { OPEN_PAREN: "OPEN_PAREN" },
-  { type: "CLOSE_PAREN" },
-  { type: "NOT" },
-  { type: "GE" },
-  { type: "LE" },
-  { type: "EQ" },
-  { type: "GT" },
-  { type: "LT" },
-  { type: "AND" },
-  { type: "OR" },
-  { type: "LEN" },
-  { type: "QUOTE" },
-  { type: "AND" },
-  { type: "BOOLEAN" },
-  { type: "INT" },
-  { type: "FLOAT" },
-  { type: "STRING" },
-];
+const {
+  isLiteral,
+  isOperator,
+  isOpenParen,
+  isCloseParen,
+  isLength,
+  isNot,
+  isUnaryOperator,
+  isNumber,
+  isInteger,
+  isBoolean,
+} = require("./helpers");
 
 const OPERATOR_PRECEDENCE = {
   OPEN_PAREN: 0,
@@ -24,50 +17,6 @@ const OPERATOR_PRECEDENCE = {
   OR: 400,
   AND: 500,
 };
-
-function isType(token, types) {
-  return types.includes(token.type);
-}
-
-function isLiteral(token) {
-  return isType(token, ["STRING", "INT", "FLOAT", "BOOLEAN", "QUOTED"]);
-}
-
-function isOperator(token) {
-  return isType(token, ["AND", "OR"]);
-}
-
-function isOpenParen(token) {
-  return isType(token, ["OPEN_PAREN"]);
-}
-
-function isCloseParen(token) {
-  return isType(token, ["CLOSE_PAREN"]);
-}
-
-function isLength(token) {
-  return isType(token, ["LENGTH"]);
-}
-
-function isNot(token) {
-  return isType(token, ["NOT"]);
-}
-
-function isUnaryOperator(token) {
-  return isType(token, ["LT", "GT", "LE", "GE", "EQ", "LENGTH", "NOT"]);
-}
-
-function isNumber(token) {
-  return isType(token, ["FLOAT", "INT"]);
-}
-
-function isInteger(token) {
-  return isType(token, ["INT"]);
-}
-
-function isBoolean(token) {
-  return isType(token, ["BOOLEAN"]);
-}
 
 // Returns 1 if op1 has greater precedence than op2, -1 if op1 has lesser
 // precedence, and 0 if they have the same precedence.
