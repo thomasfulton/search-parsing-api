@@ -189,5 +189,24 @@ describe("parser", () => {
         type: "AND",
       });
     });
+
+    it("parses length operators correctly", () => {
+      expect(
+        parse([
+          { type: "LENGTH" },
+          { type: "OPEN_PAREN" },
+          { type: "INT", value: 3 },
+          { type: "CLOSE_PAREN" },
+          { type: "AND" },
+          { type: "STRING", value: "test" },
+        ])
+      ).to.deep.equal({
+        type: "AND",
+        children: [
+          { type: "LENGTH", value: 3 },
+          { type: "STRING", value: "test" },
+        ],
+      });
+    });
   });
 });

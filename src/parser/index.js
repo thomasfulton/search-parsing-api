@@ -53,6 +53,14 @@ function isUnaryOperator(token) {
   return isType(token, ["LT", "GT", "LE", "GE", "EQ", "LENGTH"]);
 }
 
+function isNumber(token) {
+  return isType(token, ["FLOAT", "INT"]);
+}
+
+function isInteger(token) {
+  return isType(token, ["INT"]);
+}
+
 // Returns 1 if op1 has greater precedence than op2, -1 if op1 has lesser
 // precedence, and 0 if they have the same precedence.
 function precedence(op1, op2) {
@@ -96,8 +104,19 @@ function parse(input) {
 
     if (isUnaryOperator(token)) {
       if (isLength(token)) {
+        const v1 = input.shift();
+        const v2 = input.shift();
+        const v3 = input.shift();
+        if (isOpenParen(v1) && isInteger(v2) && isCloseParen(v3)) {
+          outputStack.push(Object.assign(token, { value: v2.value }));
+        } else {
+          throw new Error("BAD_LENGTH_ARGS");
+        }
       } else {
         const value = input.shift();
+        if (!isNumber(value)) {
+          throw new Error("ARGUMENT_NOT_NUMBER");
+        }
         outputStack.push(Object.assign(token, { value }));
       }
     }
