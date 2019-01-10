@@ -53,8 +53,6 @@ function parse(input) {
   while (input.length !== 0) {
     const token = input.shift();
 
-    // console.log("token:", JSON.stringify(token, null, 2));
-
     if (isLiteral(token)) {
       outputStack.push(token);
     }
@@ -76,11 +74,11 @@ function parse(input) {
         }
         outputStack.push(Object.assign(token, { value: next.value }));
       } else {
-        const value = input.shift();
-        if (!isNumber(value)) {
+        const next = input.shift();
+        if (!isNumber(next)) {
           throw new Error("ARGUMENT_NOT_NUMBER");
         }
-        outputStack.push(Object.assign(token, { value }));
+        outputStack.push(Object.assign(token, { value: next.value }));
       }
     }
 
@@ -109,21 +107,10 @@ function parse(input) {
         throw new Error("BRACKET_MISMATCH");
       }
     }
-
-    // console.log("operator stack:", JSON.stringify(operatorStack, null, 2));
-    // console.log("output stack:", JSON.stringify(outputStack, null, 2));
-    // console.log("-----------------");
   }
-
-  // console.log("*** INPUT EMPTY *** ");
-  // console.log("-----------------");
 
   while (operatorStack.length > 0) {
     createBinaryNode(operatorStack, outputStack);
-
-    // console.log("operator stack:", JSON.stringify(operatorStack, null, 2));
-    // console.log("outputStack:", JSON.stringify(outputStack, null, 2));
-    // console.log("-----------------");
   }
 
   if (

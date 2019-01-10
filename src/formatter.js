@@ -30,9 +30,9 @@ function format(input) {
       return { $lt: input.value };
     case "GE":
       return { $ge: input.value };
-      case "LE":
+    case "LE":
       return { $le: input.value };
-      case "NOT":
+    case "NOT":
       return { $not: input.value };
     default:
       throw new Error("INVALID_FORMATTER_INPUT");

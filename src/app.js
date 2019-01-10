@@ -1,9 +1,11 @@
 const config = require("config");
 const express = require("express");
 const morgan = require("morgan");
+const bodyParser = require("body-parser");
 const router = require("./router");
 
 const app = express();
+app.use(bodyParser.json())
 app.use(morgan('dev'));
 app.use(router);
 
