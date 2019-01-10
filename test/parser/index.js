@@ -201,6 +201,9 @@ describe("parser", () => {
           { type: "AND" },
           { type: "EQ" },
           { type: "FLOAT", value: 7.5 },
+          { type: "AND" },
+          { type: "NOT" },
+          { type: "BOOLEAN", value: false },
         ])
       ).to.deep.equal({
         children: [
@@ -210,20 +213,26 @@ describe("parser", () => {
                 children: [
                   {
                     children: [
-                      { type: "LT", value: { type: "FLOAT", value: 3.5 } },
-                      { type: "GT", value: { type: "INT", value: 4 } },
+                      {
+                        children: [
+                          { type: "LT", value: { type: "FLOAT", value: 3.5 } },
+                          { type: "GT", value: { type: "INT", value: 4 } },
+                        ],
+                        type: "AND",
+                      },
+                      { type: "LE", value: { type: "FLOAT", value: 5.5 } },
                     ],
                     type: "AND",
                   },
-                  { type: "LE", value: { type: "FLOAT", value: 5.5 } },
+                  { type: "GE", value: { type: "INT", value: 6 } },
                 ],
                 type: "AND",
               },
-              { type: "GE", value: { type: "INT", value: 6 } },
+              { type: "EQ", value: { type: "FLOAT", value: 7.5 } },
             ],
             type: "AND",
           },
-          { type: "EQ", value: { type: "FLOAT", value: 7.5 } },
+          { type: "NOT", value: false },
         ],
         type: "AND",
       });

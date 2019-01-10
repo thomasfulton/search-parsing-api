@@ -49,8 +49,12 @@ function isLength(token) {
   return isType(token, ["LENGTH"]);
 }
 
+function isNot(token) {
+  return isType(token, ["NOT"]);
+}
+
 function isUnaryOperator(token) {
-  return isType(token, ["LT", "GT", "LE", "GE", "EQ", "LENGTH"]);
+  return isType(token, ["LT", "GT", "LE", "GE", "EQ", "LENGTH", "NOT"]);
 }
 
 function isNumber(token) {
@@ -59,6 +63,10 @@ function isNumber(token) {
 
 function isInteger(token) {
   return isType(token, ["INT"]);
+}
+
+function isBoolean(token) {
+  return isType(token, ["BOOLEAN"]);
 }
 
 // Returns 1 if op1 has greater precedence than op2, -1 if op1 has lesser
@@ -112,6 +120,12 @@ function parse(input) {
         } else {
           throw new Error("BAD_LENGTH_ARGS");
         }
+      } else if (isNot(token)) {
+        const next = input.shift();
+        if (!isBoolean(next)) {
+          throw new Error("ARGUMENT_NOT_BOOLEAN");
+        }
+        outputStack.push(Object.assign(token, { value: next.value }));
       } else {
         const value = input.shift();
         if (!isNumber(value)) {
