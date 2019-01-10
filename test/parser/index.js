@@ -145,5 +145,49 @@ describe("parser", () => {
         ],
       });
     });
+    it("parses unary operators correctly", () => {
+      expect(
+        parse([
+          { type: "LT" },
+          { type: "FLOAT", value: 3.5 },
+          { type: "AND" },
+          { type: "GT" },
+          { type: "INT", value: 4 },
+          { type: "AND" },
+          { type: "LE" },
+          { type: "FLOAT", value: 5.5 },
+          { type: "AND" },
+          { type: "GE" },
+          { type: "INT", value: 6 },
+          { type: "AND" },
+          { type: "EQ" },
+          { type: "FLOAT", value: 7.5 },
+        ])
+      ).to.deep.equal({
+        children: [
+          {
+            children: [
+              {
+                children: [
+                  {
+                    children: [
+                      { type: "LT", value: { type: "FLOAT", value: 3.5 } },
+                      { type: "GT", value: { type: "INT", value: 4 } },
+                    ],
+                    type: "AND",
+                  },
+                  { type: "LE", value: { type: "FLOAT", value: 5.5 } },
+                ],
+                type: "AND",
+              },
+              { type: "GE", value: { type: "INT", value: 6 } },
+            ],
+            type: "AND",
+          },
+          { type: "EQ", value: { type: "FLOAT", value: 7.5 } },
+        ],
+        type: "AND",
+      });
+    });
   });
 });

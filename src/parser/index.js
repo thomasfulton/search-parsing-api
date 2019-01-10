@@ -21,8 +21,8 @@ const tokenPrecedence = [
 const OPERATOR_PRECEDENCE = {
   OPEN_PAREN: 0,
   CLOSE_PAREN: 0,
-  AND: 500,
   OR: 400,
+  AND: 500,
 };
 
 function isType(token, types) {
@@ -45,6 +45,14 @@ function isCloseParen(token) {
   return isType(token, ["CLOSE_PAREN"]);
 }
 
+function isLength(token) {
+  return isType(token, ["LENGTH"]);
+}
+
+function isUnaryOperator(token) {
+  return isType(token, ["LT", "GT", "LE", "GE", "EQ", "LENGTH"]);
+}
+
 // Returns 1 if op1 has greater precedence than op2, -1 if op1 has lesser
 // precedence, and 0 if they have the same precedence.
 function precedence(op1, op2) {
@@ -57,7 +65,7 @@ function precedence(op1, op2) {
   }
 }
 
-function createNode(operatorStack, outputStack) {
+function createBinaryNode(operatorStack, outputStack) {
   const o2 = outputStack.pop();
   const o1 = outputStack.pop();
   const operator = operatorStack.pop();
@@ -69,7 +77,7 @@ function createNode(operatorStack, outputStack) {
 
 function peek(array) {
   return array[array.length - 1];
-};
+}
 
 // This uses a modified shunting-yard algorithm to build an AST.
 // https://en.wikipedia.org/wiki/Shunting-yard_algorithm
@@ -80,10 +88,18 @@ function parse(input) {
   while (input.length !== 0) {
     const token = input.shift();
 
-    console.log("token:", JSON.stringify(token, null, 2));
+    // console.log("token:", JSON.stringify(token, null, 2));
 
     if (isLiteral(token)) {
       outputStack.push(token);
+    }
+
+    if (isUnaryOperator(token)) {
+      if (isLength(token)) {
+      } else {
+        const value = input.shift();
+        outputStack.push(Object.assign(token, { value }));
+      }
     }
 
     if (isOperator(token)) {
@@ -91,7 +107,7 @@ function parse(input) {
         peek(operatorStack) &&
         precedence(peek(operatorStack), token) >= 0
       ) {
-        createNode(operatorStack, outputStack);
+        createBinaryNode(operatorStack, outputStack);
       }
 
       operatorStack.push(token);
@@ -103,7 +119,7 @@ function parse(input) {
 
     if (isCloseParen(token)) {
       while (peek(operatorStack) && !isOpenParen(peek(operatorStack))) {
-        createNode(operatorStack, outputStack);
+        createBinaryNode(operatorStack, outputStack);
       }
       if (isOpenParen(peek(operatorStack))) {
         operatorStack.pop();
@@ -112,20 +128,20 @@ function parse(input) {
       }
     }
 
-    console.log("operator stack:", JSON.stringify(operatorStack, null, 2));
-    console.log("output stack:", JSON.stringify(outputStack, null, 2));
-    console.log("-----------------");
+    // console.log("operator stack:", JSON.stringify(operatorStack, null, 2));
+    // console.log("output stack:", JSON.stringify(outputStack, null, 2));
+    // console.log("-----------------");
   }
 
-  console.log("*** INPUT EMPTY *** ");
-  console.log("-----------------");
+  // console.log("*** INPUT EMPTY *** ");
+  // console.log("-----------------");
 
   while (operatorStack.length > 0) {
-    createNode(operatorStack, outputStack);
+    createBinaryNode(operatorStack, outputStack);
 
-    console.log("operator stack:", JSON.stringify(operatorStack, null, 2));
-    console.log("outputStack:", JSON.stringify(outputStack, null, 2));
-    console.log("-----------------");
+    // console.log("operator stack:", JSON.stringify(operatorStack, null, 2));
+    // console.log("outputStack:", JSON.stringify(outputStack, null, 2));
+    // console.log("-----------------");
   }
 
   if (
