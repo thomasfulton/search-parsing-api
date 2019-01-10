@@ -18,6 +18,45 @@ describe("parser", () => {
         ],
       });
     });
+    it("parses literals correctly", () => {
+      expect(
+        parse([
+          { type: "STRING", value: "test1" },
+          { type: "AND" },
+          { type: "INT", value: 3 },
+          { type: "AND" },
+          { type: "FLOAT", value: 3.5 },
+          { type: "AND" },
+          { type: "BOOLEAN", value: true },
+          { type: "AND" },
+          { type: "QUOTED", value: "test AND test" },
+        ])
+      ).to.deep.equal({
+        children: [
+          {
+            children: [
+              {
+                children: [
+                  {
+                    children: [
+                      { type: "STRING", value: "test1" },
+                      { type: "INT", value: 3 },
+                    ],
+                    type: "AND",
+                  },
+                  { type: "FLOAT", value: 3.5 },
+                ],
+                type: "AND",
+              },
+              { type: "BOOLEAN", value: true },
+            ],
+            type: "AND",
+          },
+          { type: "QUOTED", value: "test AND test" },
+        ],
+        type: "AND",
+      });
+    });
     it("parses and/or with the right precedence", () => {
       expect(
         parse([

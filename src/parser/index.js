@@ -30,7 +30,7 @@ function isType(token, types) {
 }
 
 function isLiteral(token) {
-  return isType(token, ["STRING", "INT", "FLOAT"]);
+  return isType(token, ["STRING", "INT", "FLOAT", "BOOLEAN", "QUOTED"]);
 }
 
 function isOperator(token) {
