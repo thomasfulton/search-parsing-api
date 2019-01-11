@@ -5,9 +5,7 @@ const { format } = require("../formatter");
 function post(req, res) {
   const input = req.body.input;
   try {
-    const output = format(parse(lex(input)));
-    console.log(output);
-    return res.json({ output });
+    return res.json({ output: format(parse(lex(input))) });
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
