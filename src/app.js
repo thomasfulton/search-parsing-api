@@ -14,9 +14,14 @@ const server = app.listen(apiPort, () =>
   console.info(`Search Parser API :: Listening on port ${apiPort}.`)
 );
 
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "INTERNAL_SERVER_ERROR" });
+});
+
 // `docker stop` sends a sigterm, this is needed for the application to exit
 // gracefully.
-process.on('SIGTERM', () => {
+process.on("SIGTERM", () => {
   console.info("SIGTERM received; shutting down.");
   server.close();
 });
