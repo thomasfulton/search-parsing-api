@@ -37,6 +37,9 @@ function createBinaryNode(operatorStack, outputStack) {
   if (isOpenParen(operator)) {
     throw new Error("BRACKET_MISMATCH");
   }
+  if (!o1 || !o2) {
+    throw new Error("BINARY_OPERATOR_MISMATCH_" + operator.type);
+  }
   outputStack.push(Object.assign({ children: [o1, o2] }, operator));
 }
 
@@ -59,11 +62,11 @@ function parse(input) {
 
     if (isUnaryOperator(token)) {
       if (isLength(token)) {
-        const v1 = input.shift();
-        const v2 = input.shift();
-        const v3 = input.shift();
-        if (isOpenParen(v1) && isInteger(v2) && isCloseParen(v3)) {
-          outputStack.push(Object.assign(token, { value: v2.value }));
+        const t1 = input.shift();
+        const t2 = input.shift();
+        const t3 = input.shift();
+        if (isOpenParen(t1) && isInteger(t2) && isCloseParen(t3)) {
+          outputStack.push(Object.assign(token, { value: t2.value }));
         } else {
           throw new Error("BAD_LENGTH_ARGS");
         }

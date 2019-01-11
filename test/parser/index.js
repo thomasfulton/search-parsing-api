@@ -256,5 +256,11 @@ describe("parser", () => {
         ],
       });
     });
+
+    it("throws error on invalid input", () => {
+      expect(() =>
+        parse([{ type: "STRING", value: "test" }, { type: "AND" }])
+      ).to.throw("BINARY_OPERATOR_MISMATCH_AND");
+    });
   });
 });
