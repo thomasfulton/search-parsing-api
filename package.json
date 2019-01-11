@@ -6,7 +6,9 @@
   "scripts": {
     "start": "node src/app",
     "test": "mocha",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "docker:build": "docker build -t search-parsing-api .",
+    "docker:run": "docker run -p 80:80 search-parsing-api"
   },
   "author": "fultonth@gmail.com",
   "license": "ISC",
