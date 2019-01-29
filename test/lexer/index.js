@@ -80,7 +80,7 @@ describe("lexer", () => {
       expect(nextToken("<")).to.deep.equal([{ type: "LT" }, 1]);
       expect(nextToken("=")).to.deep.equal([{ type: "EQ" }, 1]);
       expect(nextToken("!false")).to.deep.equal([{ type: "NOT" }, 1]);
-      expect(nextToken("len(5)")).to.deep.equal([{ type: "LEN" }, 3]);
+      expect(nextToken("len(5)")).to.deep.equal([{ type: "LENGTH" }, 3]);
     });
   });
 
@@ -162,7 +162,7 @@ describe("lexer", () => {
 
     it("lexes length", () => {
       expect(lex("len(5)")).to.deep.equal([
-        { type: "LEN" },
+        { type: "LENGTH" },
         { type: "OPEN_PAREN" },
         { type: "INT", value: 5 },
         { type: "CLOSE_PAREN" },

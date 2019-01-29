@@ -106,7 +106,7 @@ function nextToken(input) {
   }
 
   if (input.substring(0, 3) === "len") {
-    return [{ type: "LEN" }, 3];
+    return [{ type: "LENGTH" }, 3];
   }
 
   if (input.charAt(0) === `"`) {
